@@ -1,0 +1,1 @@
+ffmpeg -i rtmp://live.hkstv.hk.lxdns.com/live/hks -c:v libx264 -f flv rtmp://ysj.imau.edu.cn:7028/tuiliu/mee
