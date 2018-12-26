@@ -34,25 +34,27 @@ def Read_WAV(wav_path):
     print("numframes", numframes)
     Wav_Data = wav_file.readframes(numframes)
     print(type(Wav_Data))
-    Wav_Data = np.frombuffer(Wav_Data,dtype=np.int16)
+    Wav_Data = np.frombuffer(Wav_Data, dtype=np.int16)
 
     #将多声道分开
     Wav_Data = np.reshape(Wav_Data, [numframes, numchannel])
-    Wav_Data = Wav_Data[:,0]
+    Wav_Data = Wav_Data[:, 0]
 
     Wav_Data = Wav_Data * 1.0 / (max(abs(Wav_Data)))  # wave幅值归一化
 
     # print(Wav_Data.shape)
     # print(Wav_Data.size)
-    # min_v = min((abs(Wav_Data)))
-    # max_v = max((abs(Wav_Data)))
-
+    min_v = min((abs(Wav_Data)))
+    print(min_v)
+    max_v = max((abs(Wav_Data)))
+    print(max_v)
     #取若干个样本点求平均值得到一个点
     unit_sum = 0
-    unit_list = [];
-    rate = framerate
-    for k,v in enumerate(Wav_Data):
-        if(k%rate == 0 and k != 0):
+    unit_list = []
+    rate_factor = 10
+    rate = framerate/rate_factor
+    for k, v in enumerate(Wav_Data):
+        if k % rate == 0 and k != 0:
             unit_list.append(unit_sum/rate)
             unit_sum = 0
         unit_sum = abs(v) + unit_sum
@@ -60,20 +62,17 @@ def Read_WAV(wav_path):
     #求平均值
     wav_ave = 0
     for i in unit_list:
-        wav_ave =wav_ave + i
-    threshold = wav_ave/len(unit_list)
+        wav_ave = wav_ave + i
+    threshold = wav_ave / len(unit_list)
     print(str(threshold))
 
     # threshold = 0.05
     f = open("out.txt", "w+")
-    for k,v in enumerate(unit_list):
-        if(v > threshold):
-            f.write("第"+str(k//60)+"分"+"第"+str(k%60)+"秒："+str(1)+'\n')
+    for k, v in enumerate(unit_list):
+        if v > threshold:
+            f.write("第"+str(k // (60*rate_factor))+"分"+"第"+str((k % (60*rate_factor))/rate_factor)+"秒："+str(1)+'\n')
         else:
-            f.write("第" + str(k // 60) + "分" + "第" + str(k % 60) + "秒：" + str(0) + '\n')
-        # f.write("第" + str(k // 60) + "分" + "第" + str(k % 60) + "秒：" + str(v) + '\n')
-    # f.write(str(second_list))
-
+            f.write("第" + str(k // (60*rate_factor)) + "分" + "第" + str((k % (60*rate_factor))/rate_factor) + "秒：" + str(0) + '\n')
 
     f.close()
 
@@ -89,17 +88,16 @@ def Read_WAV(wav_path):
             "numframes":numframes,
             "WaveData":unit_list}
 
-
     return json.dumps(dict)
 
-def DrawSpectrum(wav_data,framerate):
+def DrawSpectrum(wav_data, framerate):
     """
     这是画音频的频谱函数
     :param wav_data: 音频数据
     :param framerate: 采样频率
     """
 
-    Time = np.linspace(0,len(wav_data)/framerate*1.0,num=len(wav_data))
+    Time = np.linspace(0, len(wav_data)/framerate*1.0, num=len(wav_data))
     plt.figure(1)
     plt.title("samples per points")
     plt.title("rate = "+str(16000/framerate))
@@ -148,7 +146,7 @@ def run_main():
         wav = json.loads(wav_json)
         wav_data = np.array(wav['WaveData'])
         framerate = int(wav['framerate'])
-        DrawSpectrum(wav_data,framerate)
+        DrawSpectrum(wav_data, framerate)
 
 if __name__ == '__main__':
     np.set_printoptions(threshold=np.inf)
