@@ -62,8 +62,8 @@ def Read_WAV_Left(wav_path):
     wav_sum = 0
 
     for k,v in enumerate(Wav_Data):
-        if(k%rate == 0 and k != 0):
-            if(wav_sum/rate > threshold):
+        if (k + 1) % rate == 0 :
+            if (wav_sum / rate) > threshold:
                 second_list.append(1)
             else:
                 second_list.append(0)
@@ -146,8 +146,8 @@ def Read_WAV_Right(wav_path):
     wav_sum = 0
 
     for k,v in enumerate(Wav_Data):
-        if(k%rate == 0 and k != 0):
-            if(wav_sum/rate > threshold):
+        if (k + 1) % rate == 0 :
+            if (wav_sum / rate) > threshold:
                 second_list.append(1)
             else:
                 second_list.append(0)
@@ -243,15 +243,15 @@ def run_main():
         sum_1 = 0
         sum_equal = 0
         for k,v in enumerate(wav_data_right):
-            if(v == 1):
+            if v == 1:
                 sum_1 += 1
-                if(wav_data_left[k] == 1):
+                if wav_data_left[k] == 1:
                     sum_equal += 1
 
         print("比例为"+str(sum_equal/sum_1))
         wav_path = wav_path.split('/')[2]
         f = open("比对结果.txt", "a")
-        if((sum_equal/sum_1)> 0.5):
+        if (sum_equal/sum_1)> 0.5:
             f.write(wav_path +" "+ ":左右分声道重合"+ " "+"重合率为"+str(sum_equal/sum_1)+'\n')
         else:
             f.write(wav_path +" "+ ":左右分声道分开"+" " +"重合率为"+str(sum_equal/sum_1)+'\n')
