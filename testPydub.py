@@ -51,10 +51,10 @@ def Read_WAV(wav_path):
     #取若干个样本点求平均值得到一个点
     unit_sum = 0
     unit_list = []
-    rate_factor = 10
+    rate_factor = 1
     rate = framerate/rate_factor
     for k, v in enumerate(Wav_Data):
-        if k % rate == 0 and k != 0:
+        if (k + 1) % rate == 0 :
             unit_list.append(unit_sum/rate)
             unit_sum = 0
         unit_sum = abs(v) + unit_sum
