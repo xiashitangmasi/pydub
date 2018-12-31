@@ -45,9 +45,9 @@ def Read_WAV(wav_path):
     # print(Wav_Data.shape)
     # print(Wav_Data.size)
     min_v = min((abs(Wav_Data)))
-    print(min_v)
+
     max_v = max((abs(Wav_Data)))
-    print(max_v)
+
     #取若干个样本点求平均值得到一个点
     unit_sum = 0
     unit_list = []
@@ -60,10 +60,12 @@ def Read_WAV(wav_path):
         unit_sum = abs(v) + unit_sum
 
     #求平均值
-    wav_ave = 0
-    for i in unit_list:
-        wav_ave = wav_ave + i
-    threshold = wav_ave / len(unit_list)
+    # wav_ave = 0
+    # for i in unit_list:
+    #     wav_ave = wav_ave + i
+    # threshold = wav_ave / len(unit_list)
+    threshold = np.mean(unit_list) - 0.5 * np.std(unit_list,ddof=1)
+    print(str(np.std(unit_list,ddof=1)))
     print(str(threshold))
 
     # threshold = 0.05
