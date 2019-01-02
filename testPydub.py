@@ -38,7 +38,7 @@ def Read_WAV(wav_path):
 
     #将多声道分开
     Wav_Data = np.reshape(Wav_Data, [numframes, numchannel])
-    Wav_Data = Wav_Data[:, 0]
+    Wav_Data = Wav_Data[:, 1]
 
     Wav_Data = Wav_Data * 1.0 / (max(abs(Wav_Data)))  # wave幅值归一化
 
@@ -66,6 +66,7 @@ def Read_WAV(wav_path):
     # threshold = wav_ave / len(unit_list)
     threshold = np.mean(unit_list) - 0.5 * np.std(unit_list,ddof=1)
     print(str(np.std(unit_list,ddof=1)))
+    print(str(np.mean(unit_list)))
     print(str(threshold))
 
     # threshold = 0.05

@@ -48,7 +48,6 @@ import math
 # print("数组形状：",a1.shape)         #打印数组形状
 # print("数组的维度数目",a1.ndim)      #打印数组的维度数目
 
-x = "./WAV_File/2003472462-1528614615830.wav"
-y = x.split('/')
-print(y[2])
+x = len('中文'.encode('ascii'))
+print(str(x))
 
