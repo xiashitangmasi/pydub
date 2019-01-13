@@ -1,11 +1,13 @@
 import numpy as np
+from numpy import *
 from pydub import AudioSegment
-import pydub
 import math
 import os
 import wave
 import json
 from matplotlib import pyplot as plt
+from testkmeans import *
+from sklearn import preprocessing
 
 def MP32WAV(mp3_path,wav_path):
     """
@@ -33,49 +35,49 @@ def Read_WAV(wav_path):
     print("framerate", framerate)
     print("numframes", numframes)
     Wav_Data = wav_file.readframes(numframes)
-    print(type(Wav_Data))
     Wav_Data = np.frombuffer(Wav_Data, dtype=np.int16)
 
     #将多声道分开
     Wav_Data = np.reshape(Wav_Data, [numframes, numchannel])
-    Wav_Data = Wav_Data[:, 1]
+    Wav_Data = Wav_Data[:, 0]
 
     Wav_Data = Wav_Data * 1.0 / (max(abs(Wav_Data)))  # wave幅值归一化
 
-    # print(Wav_Data.shape)
-    # print(Wav_Data.size)
     min_v = min((abs(Wav_Data)))
-
     max_v = max((abs(Wav_Data)))
 
     #取若干个样本点求平均值得到一个点
     unit_sum = 0
     unit_list = []
-    rate_factor = 1
-    rate = framerate/rate_factor
+    rate_factor = 1  # 表示以多少秒为一个单位
+    rate = framerate * rate_factor
     for k, v in enumerate(Wav_Data):
         if (k + 1) % rate == 0 :
             unit_list.append(unit_sum/rate)
             unit_sum = 0
         unit_sum = abs(v) + unit_sum
 
-    #求平均值
-    # wav_ave = 0
-    # for i in unit_list:
-    #     wav_ave = wav_ave + i
-    # threshold = wav_ave / len(unit_list)
-    threshold = np.mean(unit_list) - 0.5 * np.std(unit_list,ddof=1)
-    print(str(np.std(unit_list,ddof=1)))
-    print(str(np.mean(unit_list)))
-    print(str(threshold))
+    #将list再次归一化
+    unit_list = np.array(unit_list)
+    unit_list = unit_list * 1.0 / (max(abs(unit_list)))
+    unit_list = unit_list.tolist()
 
-    # threshold = 0.05
+    unit_mat = mat(unit_list)
+    ver_unit_list = np.transpose(unit_mat)
+    print("ver_unit_list:",ver_unit_list)
+    myCentroids, clustAssing = kMeans(ver_unit_list, 2)
+
+    # threshold = np.mean(unit_list) - 0.5 * np.std(unit_list,ddof=1)
+
+
     f = open("out.txt", "w+")
-    for k, v in enumerate(unit_list):
-        if v > threshold:
-            f.write("第"+str(k // (60*rate_factor))+"分"+"第"+str((k % (60*rate_factor))/rate_factor)+"秒："+str(1)+'\n')
-        else:
-            f.write("第" + str(k // (60*rate_factor)) + "分" + "第" + str((k % (60*rate_factor))/rate_factor) + "秒：" + str(0) + '\n')
+    # for k, v in enumerate(unit_list):
+    #     if v > threshold:
+    #         f.write("第"+str(k // (60*rate_factor))+"分"+"第"+str((k % (60*rate_factor))/rate_factor)+"秒："+str(1)+'\n')
+    #     else:
+    #         f.write("第" + str(k // (60*rate_factor)) + "分" + "第" + str((k % (60*rate_factor))/rate_factor) + "秒：" + str(0) + '\n')
+    for k, v in enumerate(clustAssing):
+        f.write("第" + str(k // (60 * rate_factor)) + "分" + "第" + str((k % (60 * rate_factor)) / rate_factor) + "秒：" + str(v) + '\n')
 
     f.close()
 
@@ -89,7 +91,7 @@ def Read_WAV(wav_path):
             "samplewidth":samplewidth,
             "framerate":framerate/rate,
             "numframes":numframes,
-            "WaveData":unit_list}
+            "WaveData":clustAssing}
 
     return json.dumps(dict)
 
